@@ -1,76 +1,3 @@
-//package tests;
-//
-//import org.testng.annotations.Test;
-//
-//import base.BaseTest;
-//
-//import pages.AddMember;
-//import pages.LoginPage;
-//import pages.HouseholdPage;
-//
-//public class AddMemberTest extends BaseTest {
-//
-//    @Test
-//    public void addMemberTest() {
-//
-//        // --------------------------------
-//        // Login
-//        // --------------------------------
-//
-//        LoginPage loginPage = new LoginPage(driver);
-//
-//        loginPage.login("Rohit", "Rohit@123");
-//
-//        // --------------------------------
-//        // Location Permission
-//        // --------------------------------
-//
-//        allowLocationPermission();
-//
-//        // --------------------------------
-//        // Verify Dashboard
-//        // --------------------------------
-//
-//        loginPage.verifyDashboard();
-//
-//        // --------------------------------
-//        // Household
-//        // --------------------------------
-//
-//        HouseholdPage householdPage = new HouseholdPage(driver);
-//
-//        householdPage.clickHousehold();
-//
-//        System.out.println("Household page opened successfully!");
-//
-//        // --------------------------------
-//        // Add Member
-//        // --------------------------------
-//
-//        AddMember addMember = new AddMember(driver);
-//
-//        // --------------------------------
-//        // Click Household
-//        // Whose Status is Continue
-//        // --------------------------------
-//
-//        addMember.clickContinueStatusHousehold();
-//
-//        System.out.println("Continue status household clicked successfully!");
-//        
-//     // --------------------------------
-//     // Click Add Member
-//     // --------------------------------
-//
-//     addMember.clickAddMember();
-//
-//     System.out.println("Add Member page opened successfully!");
-//
-//
-//    }
-//}
-
-
 package tests;
 
 import org.testng.annotations.Test;
@@ -83,120 +10,131 @@ import pages.HouseholdPage;
 
 public class AddMemberTest extends BaseTest {
 
-    @Test
-    public void addMemberTest() {
+	@Test
+	public void addMemberTest() {
 
-        // --------------------------------
-        // Login
-        // --------------------------------
+		// --------------------------------
+		// Login
+		// --------------------------------
 
-        LoginPage loginPage = new LoginPage(driver);
+		LoginPage loginPage = new LoginPage(driver);
 
-        loginPage.login("Rohit", "Rohit@123");
+		loginPage.login("Rohit", "Rohit@123");
 
-        // --------------------------------
-        // Location Permission
-        // --------------------------------
+		// --------------------------------
+		// Location Permission
+		// --------------------------------
 
-        allowLocationPermission();
+		allowLocationPermission();
 
-        // --------------------------------
-        // Verify Dashboard
-        // --------------------------------
+		// --------------------------------
+		// Verify Dashboard
+		// --------------------------------
 
-        loginPage.verifyDashboard();
+		loginPage.verifyDashboard();
 
-        // --------------------------------
-        // Household
-        // --------------------------------
+		// --------------------------------
+		// Household
+		// --------------------------------
 
-        HouseholdPage householdPage = new HouseholdPage(driver);
+		HouseholdPage householdPage = new HouseholdPage(driver);
 
-        householdPage.clickHousehold();
+		householdPage.clickHousehold();
 
-        System.out.println("Household page opened successfully!");
+		System.out.println("Household page opened successfully!");
 
-        // --------------------------------
-        // Add Member
-        // --------------------------------
+		// --------------------------------
+		// Add Member
+		// --------------------------------
 
-        AddMember addMember = new AddMember(driver);
+		AddMember addMember = new AddMember(driver);
 
-        // --------------------------------
-        // Click Household
-        // Whose Status is Continue
-        // --------------------------------
+		// --------------------------------
+		// Click Household
+		// Whose Status is Continue
+		// --------------------------------
 
-        addMember.clickContinueStatusHousehold();
+		addMember.clickContinueStatusHousehold();
 
-        System.out.println("Continue status household clicked successfully!");
+		// --------------------------------
+		// Click Add Member
+		// --------------------------------
 
-        // --------------------------------
-        // Click Add Member
-        // --------------------------------
+		addMember.clickAddMember();
 
-        addMember.clickAddMember();
-
-        System.out.println("Add Member page opened successfully!");
-
-        // --------------------------------
-        // National ID
-        // Starts With 1
-        // 1 - 10 Digits
-        // --------------------------------
-
-        addMember.enterNationalId();
-
-        // --------------------------------
-        // First Name
-        // --------------------------------
-
-        addMember.enterFirstName("mohit");
-
-        // --------------------------------
-        // Last Name
-        // --------------------------------
-
-        addMember.enterLastName("Kumar");
-
-        // --------------------------------
-        // Date Of Birth
-        // Age Between 5 - 15 Years
-        // --------------------------------
-
-        addMember.enterRandomDob();
-
-        // --------------------------------
-        // Primary Mobile
-        // Starts With 05
-        // 10 Digits
-        // --------------------------------
-
-        addMember.enterPrimaryMobile();
-
-        System.out.println("Member basic details entered successfully!");
-        
-     // --------------------------------
-     // Select Gender - Male
-     // --------------------------------
-
-     addMember.selectMale();
-
-     System.out.println("Male gender selected successfully!");
-
-     // --------------------------------
-     // Relation To Household Head
-     // --------------------------------
-
-     addMember.selectMaleRelation();
-     
-  // --------------------------------
-  // Relation To Household Head
-  // Male Allowed Relations
-  // --------------------------------
-
-  addMember.selectMaleRelation();
+		System.out.println("Add Member page opened successfully!");
 
 
-    }
+		addMember.enterNationalId();
+
+		// --------------------------------
+		// First Name
+		// --------------------------------
+
+		addMember.enterFirstName("karan");
+
+		// --------------------------------
+		// Last Name
+		// --------------------------------
+
+		addMember.enterLastName("Kumar");
+
+		// --------------------------------
+		// Date Of Birth
+		// Age Between 5 - 15 Years
+		// --------------------------------
+
+		addMember.enterRandomDob();
+
+		// --------------------------------
+		// Primary Mobile
+		// Starts With 05
+		// 10 Digits
+		// --------------------------------
+
+		addMember.enterPrimaryMobile();
+
+		// --------------------------------
+		// Select Gender - Male
+		// --------------------------------
+
+		addMember.selectMale();
+
+		// --------------------------------
+		// Relation To Household Head
+		// --------------------------------
+
+		addMember.selectMaleRelation();
+
+		addMember.selectMemberScreeningPresent();
+
+		addMember.selectChildOrStudent();
+		
+		//- consent data process
+
+		addMember.clickOpenConsent();
+		
+		addMember.clickConsentCheckbox();
+		
+		addMember.enterConsentPersonName("Rohit Kumar");
+		
+		addMember.selectParticipantRelation();
+		
+		addMember.clickParticipantPersonSignature();
+		
+		addMember.drawParticipantPersonSignature();
+		
+		addMember.clickSignConsent();
+//		addMember.clickSaveConsent();
+		
+		addMember.enterWitnessName("Rahul Kumar");
+		
+		addMember.clickWitnessPersonSignature();
+		addMember.drawWitnessPersonSignature();
+		addMember.clickSignConsent();
+		addMember.clickSaveConsent();
+		addMember.clickSave();
+		addMember.clickSuccessPopupOk();
+
+	}
 }
