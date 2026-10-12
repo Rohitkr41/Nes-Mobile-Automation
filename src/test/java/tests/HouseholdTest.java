@@ -15,7 +15,23 @@ public class HouseholdTest extends BaseTest {
 		// Login
 		// --------------------------------
 
-		loginAndOpenDashboard();
+		LoginPage loginPage = new LoginPage(driver);
+
+		loginPage.login("Rohit", "Rohit@123");
+
+		
+		allowLocationPermission();
+
+		// --------------------------------
+		// Verify Dashboard
+		// --------------------------------
+
+		loginPage.verifyDashboard();
+
+		// --------------------------------
+		// Household
+		// --------------------------------
+
 		HouseholdPage householdPage = new HouseholdPage(driver);
 
 		householdPage.clickHousehold();

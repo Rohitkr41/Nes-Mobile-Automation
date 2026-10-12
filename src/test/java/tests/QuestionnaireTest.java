@@ -7,11 +7,13 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import base.BaseTest;
 import io.appium.java_client.AppiumBy;
+
+import base.BaseTest;
 import pages.AccessToCare;
 import pages.AddMember;
 import pages.HouseholdPage;
+import pages.LoginPage;
 import pages.Questionnaire;
 import pages.SelfReportedEyeProblems;
 import pages.SelfReportedHealth;
@@ -45,26 +47,32 @@ public class QuestionnaireTest extends BaseTest {
 
 		Assert.assertFalse(patients.isEmpty(), "Patient list load nahi hui. Source: " + driver.getPageSource());
 
+		// Select patient by name
+        String patientToOpen = "Suman Kumar";
+//		String patientToOpen = "Aman Raj";
 
-        openPatientQuestionnaire();
-
+		Assert.assertTrue(patients.contains(patientToOpen),
+				"Patient nahi mila: " + patientToOpen + ". Available patients: " + patients);
+		// Open selected patient's questionnaire
+		questionnaire.openMemberQuestionnaire(patientToOpen);
+		
 
 		// Fill Sociodemographic section
 		Sociodemographic sociodemographic = new Sociodemographic(driver);
 
-			sociodemographic.clickSociodemographic();
+		if (sociodemographic.clickSociodemographic()) {
 			sociodemographic.enterRandomYearOfEducation(2);
 			sociodemographic.selectReadAndWrite();
 			sociodemographic.RandomNoneYearOfEducation(1);
 			sociodemographic.selectRandomNearWorkDuration();
 			sociodemographic.selectRandomTimeOutdoorDuration();
 			sociodemographic.clickSaveSociodemographic();
-		
+		}
 
 		// Self-reported Health section open karein
 		SelfReportedHealth health = new SelfReportedHealth(driver);
 
-//		health.clickSelfReportedHealth();
+		health.clickSelfReportedHealth();
 		health.selectRandomHealthRating();
 		health.selectRandomHealthCondition();
 		health.clickSaveSelfReportedHealth();
@@ -72,13 +80,13 @@ public class QuestionnaireTest extends BaseTest {
 		// Self-reported eye section open karein
 		SelfReportedEyeProblems eyeProblems = new SelfReportedEyeProblems(driver);
 
-//		eyeProblems.clickSelfReportedEyeProblems();
+		eyeProblems.clickSelfReportedEyeProblems();
 		eyeProblems.selectRandomEyeProblem();
 		eyeProblems.clickSaveSelfReportedEyeProblems();
 
 		// Access to care
 		AccessToCare care = new AccessToCare(driver);
-//		care.clickAccessToCare();
+		care.clickAccessToCare();
 		care.clickNo();
 		care.selectRandomNeverEyeExam();
 		care.clickCompleteQuestionnaire();
