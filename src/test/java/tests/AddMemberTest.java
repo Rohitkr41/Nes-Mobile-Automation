@@ -13,26 +13,7 @@ public class AddMemberTest extends BaseTest {
 	@Test
 	public void addMemberTest() {
 
-		// --------------------------------
-		// Login
-		// --------------------------------
-
-		LoginPage loginPage = new LoginPage(driver);
-
-		loginPage.login("Rohit", "Rohit@123");
-
-		// --------------------------------
-		// Location Permission
-		// --------------------------------
-
-		allowLocationPermission();
-
-		// --------------------------------
-		// Verify Dashboard
-		// --------------------------------
-
-		loginPage.verifyDashboard();
-
+		loginAndOpenDashboard();
 		// --------------------------------
 		// Household
 		// --------------------------------
