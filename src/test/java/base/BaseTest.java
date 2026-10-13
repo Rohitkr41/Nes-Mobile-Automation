@@ -3,6 +3,7 @@ package base;
 import java.net.URI;
 import java.time.Duration;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -13,96 +14,141 @@ import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import pages.LoginPage;
+import pages.Questionnaire;
+import pages.ReferralPage;
 
 public class BaseTest {
 
-    protected AndroidDriver driver;
-    protected WebDriverWait wait;
+	protected AndroidDriver driver;
+	protected WebDriverWait wait;
 
-    @BeforeMethod
-    public void setup() throws Exception {
+	@BeforeMethod
+	public void setup() throws Exception {
 
-        // --------------------------------
-        // Appium Capabilities
-        // --------------------------------
+		// --------------------------------
+		// Appium Capabilities
+		// --------------------------------
 
-        UiAutomator2Options options = new UiAutomator2Options();
+		UiAutomator2Options options = new UiAutomator2Options();
 
-        options.setPlatformName("Android");
-        options.setAutomationName("UiAutomator2");
+		options.setPlatformName("Android");
+		options.setAutomationName("UiAutomator2");
 
-        // Exact emulator
-        options.setDeviceName("emulator-5554");
-        options.setUdid("emulator-5554");
+		// Exact emulator
+//        options.setDeviceName("emulator-5554");
+//        options.setUdid("emulator-5554");
 
-        // APK path
-        options.setApp("C:\\Users\\sumit\\Downloads\\nesLocal.apk");
+		options.setDeviceName("HA1FZFNG");
+		options.setUdid("HA1FZFNG");
 
-        // --------------------------------
-        // Start Appium Session
-        // --------------------------------
+		// APK path
+		options.setApp("C:\\Users\\sumit\\Downloads\\nesLocal.apk");
 
-        driver = new AndroidDriver(
-                new URI("http://127.0.0.1:4723").toURL(),
-                options
-        );
+		// --------------------------------
+		// Start Appium Session
+		// --------------------------------
 
-        System.out.println("App launched successfully!");
+		driver = new AndroidDriver(new URI("http://127.0.0.1:4723").toURL(), options);
 
-        // --------------------------------
-        // Explicit Wait
-        // --------------------------------
+		System.out.println("App launched successfully!");
 
-        wait = new WebDriverWait(
-                driver,
-                Duration.ofSeconds(15)
-        );
-    }
+		// --------------------------------
+		// Explicit Wait
+		// --------------------------------
 
-    // --------------------------------
-    // Location Permission
-    // --------------------------------
+		wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+	}
 
-    protected void allowLocationPermission() {
+	// --------------------------------
+	// Location Permission
+	// --------------------------------
 
-        try {
+	
+	protected void allowLocationPermission() {
 
-            WebElement allowLocation = wait.until(
-                    ExpectedConditions.elementToBeClickable(
-                            AppiumBy.androidUIAutomator(
-                                    "new UiSelector().text(\"While using the app\")"
-                            )
-                    )
-            );
+		// Real device: resource-id
+		By realDeviceButton = AppiumBy.id(
+				"com.android.permissioncontroller:id/permission_allow_foreground_only_button");
 
-            allowLocation.click();
+		// Emulator (Android Studio): button ka text
+		By emulatorButton = AppiumBy.androidUIAutomator(
+				"new UiSelector().text(\"While using the app\")");
 
-            System.out.println("Location permission allowed!");
+		// Dono me se jo pehle dikhe wo lo (max 10 sec wait)
+		By allowButton = findFirstDisplayed(10, realDeviceButton, emulatorButton);
 
-        } catch (Exception e) {
+		if (allowButton != null) {
 
-            System.out.println(
-                    "Location permission popup was not displayed."
-            );
-        }
-    }
-    
-    protected void loginAndOpenDashboard() {
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.login("Rohit", "Rohit@123");
-        allowLocationPermission();
-        loginPage.verifyDashboard();
-    }
+			driver.findElement(allowButton).click();
 
-    // --------------------------------
-    // Close Driver
-    // --------------------------------
+			System.out.println("Location permission allowed!");
 
-    @AfterMethod
-    public void tearDown() {
+		} else {
 
-        if (driver != null) {
+			System.out.println("Location permission popup was not displayed.");
+		}
+	}
+
+	
+	private By findFirstDisplayed(int seconds, By... locators) {
+
+		long endTime = System.currentTimeMillis() + (seconds * 1000L);
+
+		while (System.currentTimeMillis() < endTime) {
+
+			for (By locator : locators) {
+				if (!driver.findElements(locator).isEmpty()) {
+					return locator;
+				}
+			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	protected void loginAndOpenDashboard() {
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.login("Rohit", "Rohit@123");
+		allowLocationPermission();
+		loginPage.verifyDashboard();
+	}
+
+//    protected static final String PATIENT_NAME = "Govind Kumar";
+	protected static final String PATIENT_NAME = "jitin Kumar";
+
+	protected void openPatientQuestionnaire() {
+		Questionnaire questionnaire = new Questionnaire(driver);
+
+		questionnaire.openMemberSection(PATIENT_NAME, "Questionnaire");
+	}
+
+	protected void openPatientVisionAssessment() {
+		Questionnaire questionnaire = new Questionnaire(driver);
+
+		questionnaire.openMemberSection(PATIENT_NAME, "Vision Assessment");
+	}
+
+	protected void openPatientReferral(String patientName) {
+		ReferralPage referralPage = new ReferralPage(driver);
+		referralPage.openMemberReferral(patientName);
+	}
+
+	// --------------------------------
+	// Close Driver
+	// --------------------------------
+
+	@AfterMethod
+	public void tearDown() {
+
+		if (driver != null) {
 //            driver.quit();
-        }
-    }
+		}
+	}
 }
