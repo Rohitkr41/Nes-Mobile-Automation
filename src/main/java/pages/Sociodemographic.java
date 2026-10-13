@@ -10,6 +10,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
+import java.util.Map;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.remote.RemoteWebElement;
 
 public class Sociodemographic {
 
@@ -17,6 +20,8 @@ public class Sociodemographic {
 	private final WebDriverWait wait;
 	
 
+//	private final By sociodemographicSection = AppiumBy
+//			.androidUIAutomator("new UiSelector().descriptionContains(\"Sociodemographic Status\")");
 	private final By sociodemographicSection = AppiumBy
 			.androidUIAutomator("new UiSelector().descriptionContains(\"Sociodemographic Status\")");
 
@@ -47,23 +52,99 @@ public class Sociodemographic {
 
 	// methods start here
 
-	public void clickSociodemographic() {
+	private void waitForLoaderToDisappear() {
 
-    WebElement section = wait.until(
-        ExpectedConditions.elementToBeClickable(
-            sociodemographicSection
-        )
-    );
+	By loader = AppiumBy.className("android.widget.ProgressBar");
 
-    System.out.println(
-        "Sociodemographic section found. Attempting click..."
-    );
+	// Loader aata hai to pehle use dikhne do (max 2 sec), phir gayab hone ka wait
+	try {
+		new WebDriverWait(driver, Duration.ofSeconds(2))
+				.until(ExpectedConditions.visibilityOfElementLocated(loader));
+	} catch (TimeoutException ignored) {
+		// loader abhi dikha hi nahi, aage badho
+	}
 
-    section.click();
+	wait.until(ExpectedConditions.invisibilityOfElementLocated(loader));
 
-    System.out.println(
-        "Sociodemographic click command executed."
-    );
+	pause(500); // UI settle hone ka chhota wait
+}
+
+private boolean isSociodemographicOpen() {
+
+	List<WebElement> section = driver.findElements(sociodemographicSection);
+
+	if (!section.isEmpty()) {
+		String desc = section.get(0).getAttribute("content-desc");
+		if (desc != null && desc.contains("Expanded")) {
+			return true;
+		}
+	}
+
+	// Form ka pehla field (Year of Education) dikh raha ho to bhi khula hua hai
+	return !driver.findElements(yearOfEducationField).isEmpty();
+}
+
+public boolean clickSociodemographic() {
+
+	// 1) Loading khatam hone ka wait
+	waitForLoaderToDisappear();
+
+	// 2) Section aur uska status load hone ka wait
+	String desc = wait.until(d -> {
+		List<WebElement> els = d.findElements(sociodemographicSection);
+		if (els.isEmpty()) {
+			return null;
+		}
+		String value = els.get(0).getAttribute("content-desc");
+		return (value != null && value.contains(",")) ? value : null;
+	});
+
+	System.out.println("Sociodemographic status: " + desc.replace("\n", " ").trim());
+
+	if (desc.contains("Expanded")) {
+		System.out.println("Sociodemographic already expanded. Click skipped.");
+		return true;
+	}
+
+	if (!desc.contains("Pending")) {
+		System.out.println("Sociodemographic status Pending nahi hai. Click skipped.");
+		return false;
+	}
+
+	// 3) Click + verify + retry (max 3 baar)
+	for (int attempt = 1; attempt <= 3; attempt++) {
+
+		WebElement section = wait.until(ExpectedConditions.elementToBeClickable(sociodemographicSection));
+
+		if (attempt == 2) {
+			// Dusri try: gesture se click (normal click na chale to)
+			driver.executeScript("mobile: clickGesture",
+					Map.of("elementId", ((RemoteWebElement) section).getId()));
+		} else {
+			section.click();
+		}
+
+		pause(1000);
+
+		if (isSociodemographicOpen()) {
+			System.out.println("Sociodemographic opened (attempt " + attempt + ").");
+			return true;
+		}
+
+		System.out.println("Sociodemographic khula nahi (attempt " + attempt + "), dobara try...");
+		waitForLoaderToDisappear();
+	}
+
+	throw new org.openqa.selenium.ElementNotInteractableException(
+			"Sociodemographic section 3 try ke baad bhi open nahi hua.");
+}
+
+private void pause(long ms) {
+	try {
+		Thread.sleep(ms);
+	} catch (InterruptedException e) {
+		Thread.currentThread().interrupt();
+	}
 }
 
 	public void enterRandomYearOfEducation(int patientAge) {
