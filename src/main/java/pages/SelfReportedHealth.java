@@ -1,7 +1,12 @@
 package pages;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -79,8 +84,6 @@ public class SelfReportedHealth {
 }
 	
 	public void selectRandomHealthCondition() {
-
-    // Actual content-desc mein newline hai
     By dropdownLocator = AppiumBy.xpath(
         "//*[@content-desc='Health Condition\nSelect']"
     );
@@ -88,112 +91,62 @@ public class SelfReportedHealth {
     WebElement dropdown = wait.until(
         ExpectedConditions.elementToBeClickable(dropdownLocator)
     );
-
     dropdown.click();
 
     System.out.println("Health Condition dropdown clicked.");
 
-    java.util.Set<String> excludedConditions =
-        new java.util.HashSet<>(
-            java.util.Arrays.asList("None", "Diabetes", "Cancer")
-        );
-
-    // Popup ke elements inspect karein
-    List<WebElement> elements = driver.findElements(
-        AppiumBy.xpath("//*[@content-desc]")
+    Set<String> excludedConditions = new HashSet<>(
+        Arrays.asList("None", "Cancer", "Diabetes")
     );
 
-    System.out.println("===== DROPDOWN OPTIONS =====");
-
-    for (WebElement element : elements) {
-        String desc = element.getAttribute("content-desc");
-
-        if (desc != null) {
-            System.out.println("OPTION DEBUG: [" + desc + "]");
-        }
-    }
-
-    // Questionnaire headers aur dropdown ko exclude karein
     By optionsLocator = AppiumBy.xpath(
-        "//*[@content-desc and " +
-        "not(contains(@content-desc,'Pending')) and " +
-        "not(contains(@content-desc,'Collapsed')) and " +
-        "not(@content-desc='Health Condition\nSelect')]"
+        "//android.widget.ScrollView/*[@content-desc]"
     );
 
-    wait.until(d -> {
-        List<WebElement> options = d.findElements(optionsLocator);
+    wait.until(d -> d.findElements(optionsLocator).stream().anyMatch(option -> {
+        String value = option.getAttribute("content-desc");
 
-        return options.stream().anyMatch(option -> {
-            String value = option.getAttribute("content-desc");
+        return value != null
+            && !value.trim().isEmpty()
+            && !excludedConditions.contains(value.trim())
+            && option.isDisplayed()
+            && option.isEnabled();
+    }));
 
-            return value != null
+    List<WebElement> validOptions = new ArrayList<>();
+
+    for (WebElement option : driver.findElements(optionsLocator)) {
+        String value = option.getAttribute("content-desc");
+
+        if (value != null
                 && !value.trim().isEmpty()
-                && !value.contains("Self-reported")
-                && !value.equals("Self reported health condition?")
                 && !excludedConditions.contains(value.trim())
                 && option.isDisplayed()
-                && option.isEnabled();
-        });
-    });
-
-    List<WebElement> options = driver.findElements(optionsLocator);
-    List<WebElement> validOptions = new java.util.ArrayList<>();
-
-    for (WebElement option : options) {
-
-        String condition = option.getAttribute("content-desc");
-
-        if (condition == null) {
-            continue;
+                && option.isEnabled()) {
+            validOptions.add(option);
         }
-
-        condition = condition.trim();
-
-        if (condition.isEmpty()
-                || condition.contains("Pending")
-                || condition.contains("Collapsed")
-                || condition.contains("Self-reported")
-                || condition.equals("Self reported health condition?")
-                || condition.equals("Health Condition\nSelect")
-                || condition.equals("Save Self-reported Health and Conditions")
-                || excludedConditions.contains(condition)
-                || !option.isDisplayed()
-                || !option.isEnabled()) {
-            continue;
-        }
-
-        validOptions.add(option);
     }
 
     if (validOptions.isEmpty()) {
         throw new IllegalStateException(
-            "No valid health condition options found. "
-            + "Check dropdown debug output."
+            "No valid Health Condition options found in the dropdown."
         );
     }
 
     WebElement selectedOption = validOptions.get(
-        java.util.concurrent.ThreadLocalRandom.current()
-            .nextInt(validOptions.size())
+        ThreadLocalRandom.current().nextInt(validOptions.size())
     );
 
-    String selectedCondition =
-        selectedOption.getAttribute("content-desc");
-
+    String selectedCondition = selectedOption.getAttribute("content-desc");
     selectedOption.click();
 
-    System.out.println(
-        "Health Condition selected: " + selectedCondition
-    );
+    System.out.println("Health Condition selected: " + selectedCondition);
 
-    // Apply button sirf tab click hoga jab woh available ho
     By applyButton = AppiumBy.accessibilityId("Apply");
 
     WebElement apply = wait.until(
         ExpectedConditions.elementToBeClickable(applyButton)
     );
-
     apply.click();
 
     System.out.println("Apply button clicked successfully.");
