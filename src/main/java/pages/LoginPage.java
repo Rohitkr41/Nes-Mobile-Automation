@@ -46,7 +46,11 @@ public class LoginPage {
 	// Dashboard
 	// --------------------------------
 
-	private By dashboard = AppiumBy.accessibilityId("National Eye Survey");
+	private By dashboard = AppiumBy.xpath(
+		    "//*[@content-desc='National Eye Survey' " +
+		    "or @text='National Eye Survey' " +
+		    "or contains(@content-desc,'National Eye Survey')]"
+		);
 
 	// --------------------------------
 	// Enter Username
@@ -99,11 +103,20 @@ public class LoginPage {
 	// --------------------------------
 
 	public void verifyDashboard() {
+    try {
+        WebElement dashboardElement = new WebDriverWait(
+            driver, Duration.ofSeconds(30)
+        ).until(ExpectedConditions.visibilityOfElementLocated(dashboard));
 
-		WebElement dashboardElement = wait.until(ExpectedConditions.visibilityOfElementLocated(dashboard));
+        Assert.assertTrue(
+            dashboardElement.isDisplayed(),
+            "Dashboard was not displayed"
+        );
+        System.out.println("Dashboard displayed successfully!");
 
-		Assert.assertTrue(dashboardElement.isDisplayed(), "Dashboard was not displayed");
-
-		System.out.println("Dashboard displayed successfully!");
-	}
+    } catch (org.openqa.selenium.TimeoutException e) {
+        System.out.println("Current screen source:\n" + driver.getPageSource());
+        throw e;
+    }
+}
 }
