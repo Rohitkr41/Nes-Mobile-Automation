@@ -11,30 +11,7 @@ public class LoginTest extends BaseTest {
     @Test
     public void loginTest() {
 
-        // --------------------------------
-        // Login Page
-        // --------------------------------
-
-        LoginPage loginPage =
-                new LoginPage(driver);
-
-        loginPage.login(
-                "Rohit",
-                "Rohit@123"
-        );
-
-        // --------------------------------
-        // Location Permission
-        // --------------------------------
-
-        allowLocationPermission();
-
-        // --------------------------------
-        // Verify Dashboard
-        // --------------------------------
-
-        loginPage.verifyDashboard();
-
+    	loginAndOpenDashboard();
         // --------------------------------
         // Final Result
         // --------------------------------
