@@ -771,6 +771,6 @@ public class AddMember {
 	    );
 
 	    okButton.click();
-	    System.out.println("Success popup OK clicked.");
+	    System.out.println("Success popup OK clicked succrssfully");
 	}
 }
