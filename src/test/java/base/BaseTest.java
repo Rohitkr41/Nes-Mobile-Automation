@@ -12,72 +12,97 @@ import org.testng.annotations.BeforeMethod;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
+import pages.LoginPage;
 
 public class BaseTest {
 
-	protected AndroidDriver driver;
-	protected WebDriverWait wait;
+    protected AndroidDriver driver;
+    protected WebDriverWait wait;
 
-	@BeforeMethod
-	public void setup() throws Exception {
+    @BeforeMethod
+    public void setup() throws Exception {
 
-		// --------------------------------
-		// Appium Capabilities
-		// --------------------------------
+        // --------------------------------
+        // Appium Capabilities
+        // --------------------------------
 
-		UiAutomator2Options options = new UiAutomator2Options();
+        UiAutomator2Options options = new UiAutomator2Options();
 
-		options.setPlatformName("Android");
-		options.setAutomationName("UiAutomator2");
-		options.setDeviceName("emulator-5554");
+        options.setPlatformName("Android");
+        options.setAutomationName("UiAutomator2");
 
-		options.setApp("C:\\Users\\sumit\\Downloads\\nesLocal.apk");
+        // Exact emulator
+        options.setDeviceName("emulator-5554");
+        options.setUdid("emulator-5554");
 
-		// --------------------------------
-		// Start Appium Session
-		// --------------------------------
+        // APK path
+        options.setApp("C:\\Users\\sumit\\Downloads\\nesLocal.apk");
 
-		driver = new AndroidDriver(new URI("http://127.0.0.1:4723").toURL(), options);
+        // --------------------------------
+        // Start Appium Session
+        // --------------------------------
 
-		System.out.println("App launched successfully!");
+        driver = new AndroidDriver(
+                new URI("http://127.0.0.1:4723").toURL(),
+                options
+        );
 
-		// --------------------------------
-		// Explicit Wait
-		// --------------------------------
+        System.out.println("App launched successfully!");
 
-		wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-	}
+        // --------------------------------
+        // Explicit Wait
+        // --------------------------------
 
-	// --------------------------------
-	// Location Permission
-	// --------------------------------
+        wait = new WebDriverWait(
+                driver,
+                Duration.ofSeconds(15)
+        );
+    }
 
-	protected void allowLocationPermission() {
+    // --------------------------------
+    // Location Permission
+    // --------------------------------
 
-		try {
+    protected void allowLocationPermission() {
 
-			WebElement allowLocation = wait.until(ExpectedConditions.elementToBeClickable(
-					AppiumBy.androidUIAutomator("new UiSelector().text(\"While using the app\")")));
+        try {
 
-			allowLocation.click();
+            WebElement allowLocation = wait.until(
+                    ExpectedConditions.elementToBeClickable(
+                            AppiumBy.androidUIAutomator(
+                                    "new UiSelector().text(\"While using the app\")"
+                            )
+                    )
+            );
 
-			System.out.println("Location permission allowed!");
+            allowLocation.click();
 
-		} catch (Exception e) {
+            System.out.println("Location permission allowed!");
 
-			System.out.println("Location permission popup was not displayed.");
-		}
-	}
+        } catch (Exception e) {
 
-	// --------------------------------
-	// Close Driver
-	// --------------------------------
+            System.out.println(
+                    "Location permission popup was not displayed."
+            );
+        }
+    }
+    
+    protected void loginAndOpenDashboard() {
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("Rohit", "Rohit@123");
+        allowLocationPermission();
+        loginPage.verifyDashboard();
+    }
 
-	@AfterMethod
-	public void tearDown() {
+    // --------------------------------
+    // Close Driver
+    // --------------------------------
 
-		if (driver != null) {
+    @AfterMethod
+    public void tearDown() {
+
+        if (driver != null) {
 //            driver.quit();
-		}
-	}
+        }
+    }
 }
