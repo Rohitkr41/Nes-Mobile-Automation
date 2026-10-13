@@ -19,10 +19,7 @@ public class HouseholdTest extends BaseTest {
 
 		loginPage.login("Rohit", "Rohit@123");
 
-		// --------------------------------
-		// Location Permission
-		// --------------------------------
-
+		
 		allowLocationPermission();
 
 		// --------------------------------
@@ -65,25 +62,25 @@ public class HouseholdTest extends BaseTest {
 		// Maximum 8 Characters
 		// --------------------------------
 
-		householdPage.enterHouseholdText("ROHIT123");
+		householdPage.enterHouseholdText("rimt457");
 
 		// --------------------------------
 		// Door No
 		// --------------------------------
 
-		householdPage.enterDoorNo("12");
+		householdPage.enterDoorNo("c4");
 
 		// --------------------------------
 		// Area
 		// --------------------------------
 
-		householdPage.enterArea("Delhi");
+		householdPage.enterArea("gurgaon");
 
 		// --------------------------------
 		// Total Member
 		// --------------------------------
 
-		householdPage.enterTotalMember("4");
+		householdPage.enterTotalMember("6");
 
 		// First Screening Status par click
 		householdPage.clickScreeningStatus();
