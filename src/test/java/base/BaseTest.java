@@ -4,8 +4,6 @@ import java.net.URI;
 import java.time.Duration;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -35,11 +33,11 @@ public class BaseTest {
 		options.setAutomationName("UiAutomator2");
 
 		// Exact emulator
-//        options.setDeviceName("emulator-5554");
-//        options.setUdid("emulator-5554");
+        options.setDeviceName("emulator-5554");
+        options.setUdid("emulator-5554");
 
-		options.setDeviceName("HA1FZFNG");
-		options.setUdid("HA1FZFNG");
+//		options.setDeviceName("HA1FZFNG");
+//		options.setUdid("HA1FZFNG");
 
 		// APK path
 		options.setApp("C:\\Users\\sumit\\Downloads\\nesLocal.apk");
@@ -120,8 +118,7 @@ public class BaseTest {
 		loginPage.verifyDashboard();
 	}
 
-//    protected static final String PATIENT_NAME = "Govind Kumar";
-	protected static final String PATIENT_NAME = "jitin Kumar";
+	protected static final String PATIENT_NAME = "Mukesh Kumar";
 
 	protected void openPatientQuestionnaire() {
 		Questionnaire questionnaire = new Questionnaire(driver);
