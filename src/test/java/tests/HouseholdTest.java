@@ -4,7 +4,6 @@ import org.testng.annotations.Test;
 
 import base.BaseTest;
 import pages.HouseholdPage;
-import pages.LoginPage;
 
 public class HouseholdTest extends BaseTest {
 
@@ -15,23 +14,7 @@ public class HouseholdTest extends BaseTest {
 		// Login
 		// --------------------------------
 
-		LoginPage loginPage = new LoginPage(driver);
-
-		loginPage.login("Rohit", "Rohit@123");
-
-		
-		allowLocationPermission();
-
-		// --------------------------------
-		// Verify Dashboard
-		// --------------------------------
-
-		loginPage.verifyDashboard();
-
-		// --------------------------------
-		// Household
-		// --------------------------------
-
+		loginAndOpenDashboard();
 		HouseholdPage householdPage = new HouseholdPage(driver);
 
 		householdPage.clickHousehold();
@@ -62,25 +45,25 @@ public class HouseholdTest extends BaseTest {
 		// Maximum 8 Characters
 		// --------------------------------
 
-		householdPage.enterHouseholdText("rimt457");
+		householdPage.enterHouseholdText("ramesh567");
 
 		// --------------------------------
 		// Door No
 		// --------------------------------
 
-		householdPage.enterDoorNo("c4");
+		householdPage.enterDoorNo("d4");
 
 		// --------------------------------
 		// Area
 		// --------------------------------
 
-		householdPage.enterArea("gurgaon");
+		householdPage.enterArea("palam vihar");
 
 		// --------------------------------
 		// Total Member
 		// --------------------------------
 
-		householdPage.enterTotalMember("6");
+		householdPage.enterTotalMember("7");
 
 		// First Screening Status par click
 		householdPage.clickScreeningStatus();

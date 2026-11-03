@@ -35,7 +35,7 @@ public class AddAdultsFemaleTest extends BaseTest {
 		 
         // Existing methods reused from femaleAdult
         female.enterNationalId();
-        female.enterFirstName("puja");
+        female.enterFirstName("rekha");
         female.enterLastName("kumari");
         female.enterRandomDobAdult();
         female.enterPrimaryMobile();

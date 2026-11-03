@@ -21,7 +21,7 @@ import pages.Sociodemographic;
 public class AdultQuestionarireTest extends BaseTest {
 
     @Test
-    public void openSelectedPatientQuestionnaireTest() {
+    public void openSelectedPatientQuestionnaireTest() throws InterruptedException {
 
         // 1. Login and open dashboard
         loginAndOpenDashboard();
@@ -57,7 +57,9 @@ public class AdultQuestionarireTest extends BaseTest {
         );
 
         // 6. Open selected patient questionnaire
-        openPatientQuestionnaire();
+        
+//        openPatientQuestionnaire();
+        questionnaire.openPendingQuestionnaire(PATIENT_NAME);
 
         // 7. Sociodemographic section
         Sociodemographic sociodemographic =
@@ -74,7 +76,8 @@ public class AdultQuestionarireTest extends BaseTest {
         // 8. Self-reported Health section
         SelfReportedHealth health =
                 new SelfReportedHealth(driver);
-       
+//        health.clickSelfReportedHealth();
+
         health.selectRandomHealthRating();
         health.selectRandomHealthCondition();
         health.clickSaveSelfReportedHealth();
@@ -90,7 +93,7 @@ public class AdultQuestionarireTest extends BaseTest {
         
         //difficulty status
         DifficultyStatusPage difficultyStatus = new DifficultyStatusPage(driver);
-        difficultyStatus.clickDifficultyStatus();
+//        difficultyStatus.clickDifficultyStatus();
         difficultyStatus.selectRandomDifficulty();
         difficultyStatus.scrollAndClickSaveDifficulty();
         

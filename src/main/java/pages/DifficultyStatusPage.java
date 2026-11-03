@@ -2,6 +2,7 @@ package pages;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -14,6 +15,8 @@ import java.util.Map;
 
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
+
 import java.util.NoSuchElementException;
 
 import io.appium.java_client.AppiumBy;
@@ -39,7 +42,7 @@ public class DifficultyStatusPage {
 
 	// Dropdown ke options (android.view.MenuItem)
 	private final By difficultyOptions = AppiumBy
-			.xpath("//android.view.MenuItem[@content-desc='No difficulty' " + "or @content-desc='Yes, some difficulty' "
+			.xpath("//*[@content-desc='No difficulty' " + "or @content-desc='Yes, some difficulty' "
 					+ "or @content-desc='Yes, a lot of difficulty' " + "or @content-desc='Cannot do at all']");
 
 	public DifficultyStatusPage(AndroidDriver driver) {
@@ -74,27 +77,102 @@ public class DifficultyStatusPage {
 
 	public void selectRandomDifficulty() {
 
-		wait.until(ExpectedConditions.elementToBeClickable(selectDropdown)).click();
+		// Open dropdown
+		WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(selectDropdown));
+
+		dropdown.click();
 
 		System.out.println("Difficulty dropdown opened!");
 
-		List<WebElement> options = wait.until(d -> {
-			List<WebElement> result = new ArrayList<>();
-			for (WebElement option : d.findElements(difficultyOptions)) {
-				if (option.isDisplayed()) {
-					result.add(option);
+		// Actual available options
+		List<String> validValues = Arrays.asList("No difficulty", "Yes, some difficulty", "Yes, a lot of difficulty",
+				"Cannot do at all");
+
+		// Wait for actual options
+		wait.until(d -> {
+
+			for (String value : validValues) {
+
+				List<WebElement> elements = d
+						.findElements(AppiumBy.xpath("//*[@content-desc=" + xpathLiteral(value) + "]"));
+
+				for (WebElement element : elements) {
+					try {
+						if (element.isDisplayed() && element.isEnabled()) {
+							return true;
+						}
+					} catch (StaleElementReferenceException ignored) {
+					}
 				}
 			}
-			return result.isEmpty() ? null : result;
+
+			return false;
 		});
 
-		WebElement selected = options.get(ThreadLocalRandom.current().nextInt(options.size()));
+		// Select random option
+		List<String> availableOptions = new ArrayList<>();
 
-		String selectedValue = selected.getAttribute("content-desc");
+		for (String value : validValues) {
 
-		selected.click();
+			List<WebElement> elements = driver
+					.findElements(AppiumBy.xpath("//*[@content-desc=" + xpathLiteral(value) + "]"));
+
+			for (WebElement element : elements) {
+				try {
+					if (element.isDisplayed() && element.isEnabled()) {
+						availableOptions.add(value);
+						break;
+					}
+				} catch (StaleElementReferenceException ignored) {
+				}
+			}
+		}
+
+		if (availableOptions.isEmpty()) {
+			throw new IllegalStateException("No Difficulty options found in dropdown.");
+		}
+
+		System.out.println("Available Difficulty options: " + availableOptions);
+
+		String selectedValue = availableOptions.get(ThreadLocalRandom.current().nextInt(availableOptions.size()));
+
+		// Fresh element lookup before click
+		By selectedLocator = AppiumBy.xpath("//*[@content-desc=" + xpathLiteral(selectedValue) + "]");
+
+		WebElement selectedOption = wait.until(ExpectedConditions.elementToBeClickable(selectedLocator));
+
+		selectedOption.click();
 
 		System.out.println("Difficulty selected: " + selectedValue);
+	}
+
+// XPath helper
+	private String xpathLiteral(String value) {
+
+		if (!value.contains("'")) {
+			return "'" + value + "'";
+		}
+
+		if (!value.contains("\"")) {
+			return "\"" + value + "\"";
+		}
+
+		String[] parts = value.split("'", -1);
+
+		StringBuilder result = new StringBuilder("concat(");
+
+		for (int i = 0; i < parts.length; i++) {
+
+			if (i > 0) {
+				result.append(", \"'\", ");
+			}
+
+			result.append("'").append(parts[i]).append("'");
+		}
+
+		result.append(")");
+
+		return result.toString();
 	}
 
 	public void scrollAndClickSaveDifficulty() {

@@ -1,3 +1,93 @@
+//package tests;
+//
+//import java.time.Duration;
+//import java.util.List;
+//
+//import org.openqa.selenium.support.ui.WebDriverWait;
+//import org.testng.Assert;
+//import org.testng.annotations.Test;
+//
+//import base.BaseTest;
+//import io.appium.java_client.AppiumBy;
+//import pages.AccessToCare;
+//import pages.AddMember;
+//import pages.HouseholdPage;
+//import pages.Questionnaire;
+//import pages.SelfReportedEyeProblems;
+//import pages.SelfReportedHealth;
+//import pages.Sociodemographic;
+//
+//public class QuestionnaireTest extends BaseTest {
+//
+//	@Test
+//	public void openSelectedPatientQuestionnaireTest() {
+//
+//		loginAndOpenDashboard();
+//
+//		// Open household
+//		HouseholdPage householdPage = new HouseholdPage(driver);
+//		householdPage.clickHousehold();
+//
+//		// Continue household status
+//		AddMember addMember = new AddMember(driver);
+//		addMember.clickContinueStatusHousehold();
+//
+//		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+//
+//		// Wait until household members load
+//		wait.until(d -> !d.findElements(AppiumBy.xpath("//*[contains(@content-desc, 'Member No:')]")).isEmpty());
+//
+//		Questionnaire questionnaire = new Questionnaire(driver);
+//
+//		List<String> patients = questionnaire.getPatientNames();
+//
+//		System.out.println("Available patients: " + patients);
+//
+//		Assert.assertFalse(patients.isEmpty(), "Patient list load nahi hui. Source: " + driver.getPageSource());
+//
+//
+//        openPatientQuestionnaire();
+//
+//
+//		// Fill Sociodemographic section
+//		Sociodemographic sociodemographic = new Sociodemographic(driver);
+//
+//			sociodemographic.clickSociodemographic();
+//			sociodemographic.enterRandomYearOfEducation(2);
+//			sociodemographic.selectReadAndWrite();
+//			sociodemographic.RandomNoneYearOfEducation(1);
+//			sociodemographic.selectRandomNearWorkDuration();
+//			sociodemographic.selectRandomTimeOutdoorDuration();
+//			sociodemographic.clickSaveSociodemographic();
+//		
+//
+//		// Self-reported Health section open karein
+//		SelfReportedHealth health = new SelfReportedHealth(driver);
+//
+////		health.clickSelfReportedHealth();
+//		health.selectRandomHealthRating();
+//		health.selectRandomHealthCondition();
+//		health.clickSaveSelfReportedHealth();
+//
+//		// Self-reported eye section open karein
+//		SelfReportedEyeProblems eyeProblems = new SelfReportedEyeProblems(driver);
+//
+////		eyeProblems.clickSelfReportedEyeProblems();
+//		eyeProblems.selectRandomEyeProblem();
+//		eyeProblems.clickSaveSelfReportedEyeProblems();
+//
+//		// Access to care
+//		AccessToCare care = new AccessToCare(driver);
+////		care.clickAccessToCare();
+//		care.clickNo();
+//		care.selectRandomNeverEyeExam();
+//		care.clickCompleteQuestionnaire();
+//
+//	}
+//}
+
+
+
 package tests;
 
 import java.time.Duration;
@@ -7,13 +97,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.appium.java_client.AppiumBy;
-
 import base.BaseTest;
+import io.appium.java_client.AppiumBy;
 import pages.AccessToCare;
 import pages.AddMember;
 import pages.HouseholdPage;
-import pages.LoginPage;
 import pages.Questionnaire;
 import pages.SelfReportedEyeProblems;
 import pages.SelfReportedHealth;
@@ -21,75 +109,88 @@ import pages.Sociodemographic;
 
 public class QuestionnaireTest extends BaseTest {
 
-	@Test
-	public void openSelectedPatientQuestionnaireTest() {
+    @Test
+    public void openSelectedPatientQuestionnaireTest() {
 
-		loginAndOpenDashboard();
+        // Login and open dashboard
+        loginAndOpenDashboard();
 
-		// Open household
-		HouseholdPage householdPage = new HouseholdPage(driver);
-		householdPage.clickHousehold();
+        // Open household
+        HouseholdPage householdPage = new HouseholdPage(driver);
+        householdPage.clickHousehold();
 
-		// Continue household status
-		AddMember addMember = new AddMember(driver);
-		addMember.clickContinueStatusHousehold();
+        // Continue household status
+        AddMember addMember = new AddMember(driver);
+        addMember.clickContinueStatusHousehold();
 
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebDriverWait wait =
+                new WebDriverWait(driver, Duration.ofSeconds(30));
 
-		// Wait until household members load
-		wait.until(d -> !d.findElements(AppiumBy.xpath("//*[contains(@content-desc, 'Member No:')]")).isEmpty());
+        // Wait for household members
+        wait.until(d -> !d.findElements(
+                AppiumBy.xpath(
+                        "//*[contains(@content-desc, 'Member No:')]"))
+                .isEmpty());
 
-		Questionnaire questionnaire = new Questionnaire(driver);
+        Questionnaire questionnaire = new Questionnaire(driver);
 
-		List<String> patients = questionnaire.getPatientNames();
+        List<String> patients = questionnaire.getPatientNames();
 
-		System.out.println("Available patients: " + patients);
+        System.out.println("Available patients: " + patients);
 
-		Assert.assertFalse(patients.isEmpty(), "Patient list load nahi hui. Source: " + driver.getPageSource());
+        Assert.assertFalse(
+                patients.isEmpty(),
+                "Patient list load nahi hui. Source: "
+                        + driver.getPageSource());
 
-		// Select patient by name
-        String patientToOpen = "Suman Kumar";
-//		String patientToOpen = "Aman Raj";
+        // Verify selected patient exists
+        Assert.assertTrue(
+                patients.stream().anyMatch(
+                        name -> name.equalsIgnoreCase(PATIENT_NAME)),
+                "Patient list mein naam nahi mila: " + PATIENT_NAME);
 
-		Assert.assertTrue(patients.contains(patientToOpen),
-				"Patient nahi mila: " + patientToOpen + ". Available patients: " + patients);
-		// Open selected patient's questionnaire
-		questionnaire.openMemberQuestionnaire(patientToOpen);
-		
+        // Open a pending Questionnaire for the selected patient
+        
+//        questionnaire.openMemberQuestionnaire(PATIENT_NAME);
+        questionnaire.openPendingQuestionnaire(PATIENT_NAME);
 
-		// Fill Sociodemographic section
-		Sociodemographic sociodemographic = new Sociodemographic(driver);
+        System.out.println(
+                "Questionnaire opened for: " + PATIENT_NAME);
 
-		if (sociodemographic.clickSociodemographic()) {
-			sociodemographic.enterRandomYearOfEducation(2);
-			sociodemographic.selectReadAndWrite();
-			sociodemographic.RandomNoneYearOfEducation(1);
-			sociodemographic.selectRandomNearWorkDuration();
-			sociodemographic.selectRandomTimeOutdoorDuration();
-			sociodemographic.clickSaveSociodemographic();
-		}
+        // Fill Sociodemographic section
+        Sociodemographic sociodemographic =
+                new Sociodemographic(driver);
 
-		// Self-reported Health section open karein
-		SelfReportedHealth health = new SelfReportedHealth(driver);
+        sociodemographic.clickSociodemographic();
+        sociodemographic.enterRandomYearOfEducation(2);
+        sociodemographic.selectReadAndWrite();
+        sociodemographic.RandomNoneYearOfEducation(1);
+        sociodemographic.selectRandomNearWorkDuration();
+        sociodemographic.selectRandomTimeOutdoorDuration();
+        sociodemographic.clickSaveSociodemographic();
 
-		health.clickSelfReportedHealth();
-		health.selectRandomHealthRating();
-		health.selectRandomHealthCondition();
-		health.clickSaveSelfReportedHealth();
+        // Self-reported Health
+        SelfReportedHealth health = new SelfReportedHealth(driver);
 
-		// Self-reported eye section open karein
-		SelfReportedEyeProblems eyeProblems = new SelfReportedEyeProblems(driver);
+        health.selectRandomHealthRating();
+        health.selectRandomHealthCondition();
+        health.clickSaveSelfReportedHealth();
 
-		eyeProblems.clickSelfReportedEyeProblems();
-		eyeProblems.selectRandomEyeProblem();
-		eyeProblems.clickSaveSelfReportedEyeProblems();
+        // Self-reported Eye Problems
+        SelfReportedEyeProblems eyeProblems =
+                new SelfReportedEyeProblems(driver);
 
-		// Access to care
-		AccessToCare care = new AccessToCare(driver);
-		care.clickAccessToCare();
-		care.clickNo();
-		care.selectRandomNeverEyeExam();
-		care.clickCompleteQuestionnaire();
+        eyeProblems.selectRandomEyeProblem();
+        eyeProblems.clickSaveSelfReportedEyeProblems();
 
-	}
+        // Access to Care
+        AccessToCare care = new AccessToCare(driver);
+
+        care.clickNo();
+        care.selectRandomNeverEyeExam();
+        care.clickCompleteQuestionnaire();
+
+        System.out.println(
+                "Questionnaire completed for: " + PATIENT_NAME);
+    }
 }

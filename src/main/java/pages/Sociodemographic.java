@@ -18,7 +18,6 @@ public class Sociodemographic {
 
 	private final AndroidDriver driver;
 	private final WebDriverWait wait;
-	
 
 //	private final By sociodemographicSection = AppiumBy
 //			.androidUIAutomator("new UiSelector().descriptionContains(\"Sociodemographic Status\")");
@@ -26,12 +25,10 @@ public class Sociodemographic {
 			.androidUIAutomator("new UiSelector().descriptionContains(\"Sociodemographic Status\")");
 
 	public Sociodemographic(AndroidDriver driver) {
-		 this.driver = driver;
-		    this.wait = new WebDriverWait(
-		        driver, Duration.ofSeconds(30)
-		    );
+		this.driver = driver;
+		this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 	}
-	
+
 	private final By yearOfEducationField = AppiumBy
 			.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\").instance(0)");
 
@@ -40,13 +37,9 @@ public class Sociodemographic {
 	private final By NoneyearOfEducationField = AppiumBy
 			.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\").instance(1)");
 
-	private By nearWorkDurationDropdown = AppiumBy.accessibilityId(
-		    "Near Work Duration\nSelect"
-		);
+	private By nearWorkDurationDropdown = AppiumBy.accessibilityId("Near Work Duration\nSelect");
 
-
-	private By timeOutdoorDurationDropdown =
-	        AppiumBy.accessibilityId("Time Outdoor Duration\nSelect");
+	private By timeOutdoorDurationDropdown = AppiumBy.accessibilityId("Time Outdoor Duration\nSelect");
 
 	private final By saveSociodemographicButton = AppiumBy.accessibilityId("Save Sociodemographic");
 
@@ -54,98 +47,109 @@ public class Sociodemographic {
 
 	private void waitForLoaderToDisappear() {
 
-	By loader = AppiumBy.className("android.widget.ProgressBar");
+    By loader = AppiumBy.className("android.widget.ProgressBar");
 
-	// Loader aata hai to pehle use dikhne do (max 2 sec), phir gayab hone ka wait
-	try {
-		new WebDriverWait(driver, Duration.ofSeconds(2))
-				.until(ExpectedConditions.visibilityOfElementLocated(loader));
-	} catch (TimeoutException ignored) {
-		// loader abhi dikha hi nahi, aage badho
-	}
-
-	wait.until(ExpectedConditions.invisibilityOfElementLocated(loader));
-
-	pause(500); // UI settle hone ka chhota wait
+    try {
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.invisibilityOfElementLocated(loader));
+    } catch (TimeoutException e) {
+        System.out.println("Loader is still visible or did not disappear.");
+        throw e;
+    }
 }
 
-private boolean isSociodemographicOpen() {
+	private boolean isSociodemographicOpen() {
 
-	List<WebElement> section = driver.findElements(sociodemographicSection);
+		List<WebElement> section = driver.findElements(sociodemographicSection);
 
-	if (!section.isEmpty()) {
-		String desc = section.get(0).getAttribute("content-desc");
-		if (desc != null && desc.contains("Expanded")) {
-			return true;
+		if (!section.isEmpty()) {
+			String desc = section.get(0).getAttribute("content-desc");
+			if (desc != null && desc.contains("Expanded")) {
+				return true;
+			}
 		}
+
+		// Form ka pehla field (Year of Education) dikh raha ho to bhi khula hua hai
+		return !driver.findElements(yearOfEducationField).isEmpty();
 	}
 
-	// Form ka pehla field (Year of Education) dikh raha ho to bhi khula hua hai
-	return !driver.findElements(yearOfEducationField).isEmpty();
-}
+	public boolean clickSociodemographic() {
 
-public boolean clickSociodemographic() {
-
-	// 1) Loading khatam hone ka wait
-	waitForLoaderToDisappear();
-
-	// 2) Section aur uska status load hone ka wait
-	String desc = wait.until(d -> {
-		List<WebElement> els = d.findElements(sociodemographicSection);
-		if (els.isEmpty()) {
-			return null;
-		}
-		String value = els.get(0).getAttribute("content-desc");
-		return (value != null && value.contains(",")) ? value : null;
-	});
-
-	System.out.println("Sociodemographic status: " + desc.replace("\n", " ").trim());
-
-	if (desc.contains("Expanded")) {
-		System.out.println("Sociodemographic already expanded. Click skipped.");
-		return true;
-	}
-
-	if (!desc.contains("Pending")) {
-		System.out.println("Sociodemographic status Pending nahi hai. Click skipped.");
-		return false;
-	}
-
-	// 3) Click + verify + retry (max 3 baar)
-	for (int attempt = 1; attempt <= 3; attempt++) {
-
-		WebElement section = wait.until(ExpectedConditions.elementToBeClickable(sociodemographicSection));
-
-		if (attempt == 2) {
-			// Dusri try: gesture se click (normal click na chale to)
-			driver.executeScript("mobile: clickGesture",
-					Map.of("elementId", ((RemoteWebElement) section).getId()));
-		} else {
-			section.click();
-		}
-
-		pause(1000);
-
-		if (isSociodemographicOpen()) {
-			System.out.println("Sociodemographic opened (attempt " + attempt + ").");
-			return true;
-		}
-
-		System.out.println("Sociodemographic khula nahi (attempt " + attempt + "), dobara try...");
 		waitForLoaderToDisappear();
+
+		// Wait until Sociodemographic section is visible
+		WebElement section = wait.until(ExpectedConditions.visibilityOfElementLocated(sociodemographicSection));
+
+		for (int attempt = 1; attempt <= 3; attempt++) {
+
+			// Get latest element to avoid stale element reference
+			section = wait.until(ExpectedConditions.presenceOfElementLocated(sociodemographicSection));
+
+			String desc = section.getAttribute("content-desc");
+
+			System.out.println("Sociodemographic description: " + desc);
+
+			if (desc != null && desc.contains("Expanded")) {
+				System.out.println("Sociodemographic already expanded.");
+				return true;
+			}
+
+			if (desc != null && desc.contains("Pending")) {
+
+				System.out.println("Sociodemographic is Pending. Clicking...");
+
+				try {
+					wait.until(ExpectedConditions.elementToBeClickable(sociodemographicSection)).click();
+
+				} catch (Exception e) {
+
+					System.out.println("Normal click failed. Trying gesture click.");
+
+					section = driver.findElement(sociodemographicSection);
+
+					driver.executeScript("mobile: clickGesture",
+							Map.of("elementId", ((RemoteWebElement) section).getId()));
+				}
+
+				// Wait for form fields to become visible
+				try {
+
+					wait.until(ExpectedConditions.visibilityOfElementLocated(yearOfEducationField));
+
+					System.out.println("Sociodemographic section opened successfully.");
+
+					return true;
+
+				} catch (TimeoutException e) {
+
+					System.out.println("Section did not open. Attempt: " + attempt);
+
+					waitForLoaderToDisappear();
+				}
+
+			} else {
+
+				// Check whether the form is already open
+				if (!driver.findElements(yearOfEducationField).isEmpty()) {
+					System.out.println("Sociodemographic form already open.");
+					return true;
+				}
+
+				System.out.println("Unexpected Sociodemographic description: " + desc);
+			}
+		}
+
+		throw new org.openqa.selenium.ElementNotInteractableException(
+				"Sociodemographic section could not be opened after 3 attempts.");
 	}
 
-	throw new org.openqa.selenium.ElementNotInteractableException(
-			"Sociodemographic section 3 try ke baad bhi open nahi hua.");
-}
-
-private void pause(long ms) {
-	try {
-		Thread.sleep(ms);
-	} catch (InterruptedException e) {
-		Thread.currentThread().interrupt();
+	private void pause(long ms) {
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
-}
 
 	public void enterRandomYearOfEducation(int patientAge) {
 		if (patientAge < 0) {
@@ -198,102 +202,88 @@ private void pause(long ms) {
 		System.out.println("Save Sociodemographic clicked.");
 	}
 
-
 	public void selectRandomNearWorkDuration() {
 
-    // Exact accessibility description from your XML
-    By dropdownLocator = AppiumBy.accessibilityId(
-        "Near Work Duration\nSelect"
-    );
+		// Locate and click Near Work Duration dropdown
+		WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(nearWorkDurationDropdown));
 
-    WebElement dropdown = wait.until(
-        ExpectedConditions.elementToBeClickable(dropdownLocator)
-    );
+		dropdown.click();
 
-    dropdown.click();
+		System.out.println("Near Work Duration dropdown clicked.");
 
-    System.out.println("Near Work Duration dropdown clicked.");
+		// Do not use XPath matches() because XPath 1.0 does not support it
+		By durationButtons = AppiumBy.xpath("//android.widget.Button[@content-desc]");
 
-    // Wait for HH:MM options
-    By durationOptions = AppiumBy.xpath(
-        "//android.widget.Button[" +
-        "matches(@content-desc, '\\d{2}:\\d{2}')]" 
-    );
+		// Wait until valid HH:mm options appear
+		List<WebElement> timeOptions = wait.until(d -> {
 
-    List<WebElement> options = wait.until(driver -> {
-        List<WebElement> buttons =
-            driver.findElements(durationOptions);
+			List<WebElement> buttons = d.findElements(durationButtons);
 
-        return buttons.isEmpty() ? null : buttons;
-    });
+			List<WebElement> validOptions = new java.util.ArrayList<>();
 
-    WebElement selected = options.get(
-        java.util.concurrent.ThreadLocalRandom.current()
-            .nextInt(options.size())
-    );
+			for (WebElement button : buttons) {
 
-    String selectedTime = selected.getAttribute("content-desc");
+				String time = button.getAttribute("content-desc");
 
-    selected.click();
+				if (time != null && time.trim().matches("\\d{2}:\\d{2}")) {
 
-    System.out.println(
-        "Near Work Duration selected: " + selectedTime
-    );
-}
+					validOptions.add(button);
+				}
+			}
+
+			return validOptions.isEmpty() ? null : validOptions;
+		});
+
+		// Select a random duration
+		WebElement selectedOption = timeOptions
+				.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(timeOptions.size()));
+
+		String selectedTime = selectedOption.getAttribute("content-desc");
+
+		selectedOption.click();
+
+		System.out.println("Near Work Duration selected: " + selectedTime);
+	}
+
 	public void selectRandomTimeOutdoorDuration() {
 
-    // Dropdown locate and click
-    WebElement dropdown = wait.until(
-        ExpectedConditions.elementToBeClickable(
-            timeOutdoorDurationDropdown
-        )
-    );
+		// Dropdown locate and click
+		WebElement dropdown = wait.until(ExpectedConditions.elementToBeClickable(timeOutdoorDurationDropdown));
 
-    dropdown.click();
+		dropdown.click();
 
-    System.out.println("Time Outdoor Duration dropdown clicked.");
+		System.out.println("Time Outdoor Duration dropdown clicked.");
 
-    // HH:MM options locate karo
-    By durationButtons = AppiumBy.xpath(
-        "//android.widget.Button[contains(@content-desc, ':')]"
-    );
+		// HH:MM options locate karo
+		By durationButtons = AppiumBy.xpath("//android.widget.Button[contains(@content-desc, ':')]");
 
-    List<WebElement> timeOptions = wait.until(driver -> {
+		List<WebElement> timeOptions = wait.until(driver -> {
 
-        List<WebElement> buttons =
-            driver.findElements(durationButtons);
+			List<WebElement> buttons = driver.findElements(durationButtons);
 
-        List<WebElement> validOptions =
-            new java.util.ArrayList<>();
+			List<WebElement> validOptions = new java.util.ArrayList<>();
 
-        for (WebElement button : buttons) {
+			for (WebElement button : buttons) {
 
-            String time = button.getAttribute("content-desc");
+				String time = button.getAttribute("content-desc");
 
-            if (time != null &&
-                    time.matches("\\d{2}:\\d{2}")) {
-                validOptions.add(button);
-            }
-        }
+				if (time != null && time.matches("\\d{2}:\\d{2}")) {
+					validOptions.add(button);
+				}
+			}
 
-        return validOptions.isEmpty() ? null : validOptions;
-    });
+			return validOptions.isEmpty() ? null : validOptions;
+		});
 
-    // Random duration select karo
-    WebElement selectedOption = timeOptions.get(
-        java.util.concurrent.ThreadLocalRandom.current()
-            .nextInt(timeOptions.size())
-    );
+		// Random duration select karo
+		WebElement selectedOption = timeOptions
+				.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(timeOptions.size()));
 
-    String selectedTime =
-        selectedOption.getAttribute("content-desc");
+		String selectedTime = selectedOption.getAttribute("content-desc");
 
-    selectedOption.click();
+		selectedOption.click();
 
-    System.out.println(
-        "Time Outdoor Duration selected: " + selectedTime
-    );
-}
-	
+		System.out.println("Time Outdoor Duration selected: " + selectedTime);
+	}
 
 }

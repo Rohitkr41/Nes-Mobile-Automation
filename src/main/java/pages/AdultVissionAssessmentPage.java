@@ -130,13 +130,26 @@ public class AdultVissionAssessmentPage {
 
 	// Presenting OD = second-last "- Select" (OS abhi bhi "- Select" hai)
 	public void selectRandomPresentingOd() {
-		selectRandomAcuityValue("(" + SELECT_FIELDS + ")[last()-1]", "Presenting OD");
+	    selectRandomAcuityValue(
+	        "(" + SELECT_FIELDS + ")[3]",
+	        "Presenting OD"
+	    );
 	}
 
 	// Presenting OS = last "- Select" (OD pehle select ho chuka hona chahiye)
 	public void selectRandomPresentingOs() {
-		selectRandomAcuityValue("(" + SELECT_FIELDS + ")[last()]", "Presenting OS");
-		scrollToBottom();
+	    By presentingOsDropdown = AppiumBy.xpath(
+	        "//*[@content-desc='Presenting']" +
+	        "/following::*[@content-desc='Left eye (OS)'][1]" +
+	        "/following::*[normalize-space(@content-desc)='- Select'][1]"
+	    );
+
+	    selectRandomAcuityValue(
+	        presentingOsDropdown.toString().replace("By.xpath: ", ""),
+	        "Presenting OS"
+	    );
+
+	    scrollToBottom();
 	}
 
 	public void clickSaveAndExit() {
@@ -267,17 +280,29 @@ public class AdultVissionAssessmentPage {
 		System.out.println("Near presenting selected: " + selectedValue);
 	}
 
-	public void debugSelectDropdowns() {
+	
+public void debugSelectDropdowns() {
 
-		List<WebElement> dropdowns = driver
-				.findElements(AppiumBy.xpath("//*[@content-desc and contains(@content-desc, 'Select')]"));
+    List<WebElement> dropdowns = driver.findElements(
+            AppiumBy.xpath(
+                "//*[@content-desc and normalize-space(@content-desc)='- Select']"
+            )
+    );
 
-		System.out.println("Total dropdowns found: " + dropdowns.size());
+    System.out.println("===== VISION DROPDOWNS =====");
 
-		for (int i = 0; i < dropdowns.size(); i++) {
-			String desc = dropdowns.get(i).getAttribute("content-desc");
+    for (int i = 0; i < dropdowns.size(); i++) {
 
-			System.out.println("Dropdown index " + i + " = [" + desc + "]");
-		}
-	}
+        WebElement element = dropdowns.get(i);
+
+        System.out.println(
+                "Index: " + i
+                + " | Description: " + element.getAttribute("content-desc")
+                + " | Bounds: " + element.getRect()
+        );
+    }
+
+    System.out.println("============================");
+}
+
 }

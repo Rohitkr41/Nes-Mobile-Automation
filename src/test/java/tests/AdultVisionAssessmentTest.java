@@ -49,10 +49,12 @@ public class AdultVisionAssessmentTest extends BaseTest {
 
         visionAssessmentPage.clickNearCorrectionDropdown();
         
+        visionAssessmentPage.debugSelectDropdowns();
+//        System.out.println(driver.getPageSource());
         visionAssessmentPage.selectRandomPresentingOd();
         visionAssessmentPage.selectRandomPresentingOs();
         
-        visionAssessmentPage.debugSelectDropdowns();
+        
         
      // Near Presenting: random NVA value select
         visionAssessmentPage.selectNVARandomNearPresenting();

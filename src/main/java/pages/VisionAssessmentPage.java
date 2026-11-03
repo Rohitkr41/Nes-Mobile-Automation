@@ -95,15 +95,38 @@ public class VisionAssessmentPage {
         System.out.println("Duration selected: " + selectedValue);
     }
 
-    // Presenting OD = second-last "- Select" (OS abhi bhi "- Select" hai)
-    public void selectRandomPresentingOd() {
-        selectRandomAcuityValue("(" + SELECT_FIELDS + ")[last()-1]", "Presenting OD");
-    }
+  
+//    public void selectRandomPresentingOd() {
+//        selectRandomAcuityValue("(" + SELECT_FIELDS + ")[last()-1]", "Presenting OD");
+//    }
+//
+//   
+//    public void selectRandomPresentingOs() {
+//        selectRandomAcuityValue("(" + SELECT_FIELDS + ")[last()]", "Presenting OS");
+//    }
+    
+	public void selectRandomPresentingOd() {
+	    selectRandomAcuityValue(
+	        "(" + SELECT_FIELDS + ")[3]",
+	        "Presenting OD"
+	    );
+	}
 
-    // Presenting OS = last "- Select" (OD pehle select ho chuka hona chahiye)
-    public void selectRandomPresentingOs() {
-        selectRandomAcuityValue("(" + SELECT_FIELDS + ")[last()]", "Presenting OS");
-    }
+	// Presenting OS = last "- Select" (OD pehle select ho chuka hona chahiye)
+	public void selectRandomPresentingOs() {
+	    By presentingOsDropdown = AppiumBy.xpath(
+	        "//*[@content-desc='Presenting']" +
+	        "/following::*[@content-desc='Left eye (OS)'][1]" +
+	        "/following::*[normalize-space(@content-desc)='- Select'][1]"
+	    );
+
+	    selectRandomAcuityValue(
+	        presentingOsDropdown.toString().replace("By.xpath: ", ""),
+	        "Presenting OS"
+	    );
+
+	   
+	}
 
     public void clickSaveAndExit() {
         By saveAndExitButton = AppiumBy.accessibilityId("Save & Exit");

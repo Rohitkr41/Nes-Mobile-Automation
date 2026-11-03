@@ -52,7 +52,7 @@ public class AddMemberTest extends BaseTest {
 		// First Name
 		// --------------------------------
 
-		addMember.enterFirstName("karan");
+		addMember.enterFirstName("kamlesh");
 
 		// --------------------------------
 		// Last Name

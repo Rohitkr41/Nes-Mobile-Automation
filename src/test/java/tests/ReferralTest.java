@@ -37,7 +37,7 @@ public class ReferralTest extends BaseTest {
             "Patient list load nahi hui."
         );
 
-        // Patient ke naam se Referral button click
+       
         // (screen par ho to seedha click, nahi to scroll karke)
         ReferralPage referralPage = new ReferralPage(driver);
         referralPage.openMemberReferral(PATIENT_NAME);

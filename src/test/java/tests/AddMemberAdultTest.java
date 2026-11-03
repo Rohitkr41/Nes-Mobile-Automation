@@ -35,7 +35,7 @@ public class AddMemberAdultTest extends BaseTest {
 
 		addMember.enterNationalId();
 
-		addMember.enterFirstName("mukesh");
+		addMember.enterFirstName("Suraj");
 
 		addMember.enterLastName("Kumar");
 

@@ -1,3 +1,4 @@
+
 package pages;
 
 import java.time.Duration;
@@ -9,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -18,79 +20,118 @@ import io.appium.java_client.android.AndroidDriver;
 
 public class SelfReportedHealth {
 
-	private final AndroidDriver driver;
-	private final WebDriverWait wait;
+    private final AndroidDriver driver;
+    private final WebDriverWait wait;
 
-	private final By selfReportedHealthSection =
-	        AppiumBy.androidUIAutomator(
-	            "new UiSelector().descriptionContains(\"Self-reported Health and Self-reported Health Conditions\")"
-	        );
+    private final By selfReportedHealthSection =
+            AppiumBy.androidUIAutomator(
+                "new UiSelector().descriptionContains(" +
+                "\"Self-reported Health and Self-reported Health Conditions\")"
+            );
 
-	public SelfReportedHealth(AndroidDriver driver) {
-		this.driver = driver;
-		this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-	}
+    // Health Rating dropdown
+    private final By healthRatingDropdown =
+            AppiumBy.androidUIAutomator(
+                "new UiSelector().descriptionContains(\"Health Rating\")"
+            );
 
-	public void clickSelfReportedHealth() {
+    // Exact Health Condition dropdown locator
+    private final By healthConditionDropdown =
+    	    AppiumBy.xpath(
+    	        "//android.view.View[@content-desc='Health Condition\nSelect']"
+    	    );
 
-    By sectionLocator = AppiumBy.androidUIAutomator(
-        "new UiSelector().descriptionContains(\"Self-reported Health and Self-reported Health Conditions\")"
-    );
+    // Actual options from your XML
+    private final By healthOptions =
+            AppiumBy.xpath(
+                "//android.view.View[@content-desc and @clickable='true']"
+            );
 
-    WebElement section = wait.until(
-        ExpectedConditions.presenceOfElementLocated(sectionLocator)
-    );
+    private final By applyButton =
+            AppiumBy.accessibilityId("Apply");
 
-    wait.until(ExpectedConditions.elementToBeClickable(sectionLocator));
+    private final By saveButton =
+            AppiumBy.accessibilityId(
+                "Save Self-reported Health and Conditions"
+            );
 
-    section.click();
+    public SelfReportedHealth(AndroidDriver driver) {
 
-    System.out.println("Self-reported Health section clicked.");
-}
+        this.driver = driver;
+        this.wait = new WebDriverWait(
+                driver, Duration.ofSeconds(30)
+        );
+    }
 
-	public void selectRandomHealthRating() {
+    // Open Self-reported Health section
+    public void clickSelfReportedHealth() {
 
-    // Health Rating dropdown locate karein
-    By healthRatingDropdown = AppiumBy.androidUIAutomator(
-        "new UiSelector().descriptionContains(\"Health Rating\")"
-    );
+        WebElement section = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                        selfReportedHealthSection
+                )
+        );
 
-    WebElement dropdown = wait.until(
-        ExpectedConditions.elementToBeClickable(healthRatingDropdown)
-    );
+        section.click();
 
-    dropdown.click();
+        System.out.println(
+                "Self-reported Health section clicked."
+        );
+    }
 
-    System.out.println("Health Rating dropdown clicked.");
+    // Select random Health Rating
+    public void selectRandomHealthRating() {
 
-    // Sirf first 3 options mein se random selection
-    String[] ratings = {"Excellent", "Very good", "Good"};
+        WebElement dropdown = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                        healthRatingDropdown
+                )
+        );
 
-    String selectedRating = ratings[
-        java.util.concurrent.ThreadLocalRandom.current()
-            .nextInt(ratings.length)
-    ];
+        dropdown.click();
 
-    // Option ko accessibility ID se locate karein
-    By optionLocator = AppiumBy.accessibilityId(selectedRating);
+        String[] ratings = {
+                "Excellent",
+                "Very good",
+                "Good"
+        };
 
-    WebElement option = wait.until(
-        ExpectedConditions.elementToBeClickable(optionLocator)
-    );
+        String selectedRating = ratings[
+                ThreadLocalRandom.current().nextInt(
+                        ratings.length
+                )
+        ];
 
-    option.click();
+        By optionLocator =
+                AppiumBy.accessibilityId(selectedRating);
 
-    System.out.println("Health Rating selected: " + selectedRating);
-}
-	
-	public void selectRandomHealthCondition() {
+        WebElement option = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                        optionLocator
+                )
+        );
+
+        option.click();
+
+        System.out.println(
+                "Health Rating selected: " + selectedRating
+        );
+    }
+
+    // Select random Health Condition
+   
+
+public void selectRandomHealthCondition() {
+
     By dropdownLocator = AppiumBy.xpath(
-        "//*[@content-desc='Health Condition\nSelect']"
+        "//android.view.View[@content-desc='Health Condition\nSelect']"
     );
 
+    // Open dropdown
     WebElement dropdown = wait.until(
         ExpectedConditions.elementToBeClickable(dropdownLocator)
     );
+
     dropdown.click();
 
     System.out.println("Health Condition dropdown clicked.");
@@ -99,68 +140,153 @@ public class SelfReportedHealth {
         Arrays.asList("None", "Cancer", "Diabetes")
     );
 
+    // Only actual dropdown list items
     By optionsLocator = AppiumBy.xpath(
-        "//android.widget.ScrollView/*[@content-desc]"
+        "//android.view.View[@content-desc and @clickable='true']"
     );
 
-    wait.until(d -> d.findElements(optionsLocator).stream().anyMatch(option -> {
-        String value = option.getAttribute("content-desc");
+    // Wait for actual options to appear
+    wait.until(d -> {
+        List<WebElement> elements = d.findElements(optionsLocator);
 
-        return value != null
-            && !value.trim().isEmpty()
-            && !excludedConditions.contains(value.trim())
-            && option.isDisplayed()
-            && option.isEnabled();
-    }));
+        for (WebElement element : elements) {
+            try {
+                String value = element.getAttribute("content-desc");
 
-    List<WebElement> validOptions = new ArrayList<>();
+                if (value != null
+                        && !value.trim().isEmpty()
+                        && !value.equals("Scrim")
+                        && !value.contains("Health Condition")
+                        && !excludedConditions.contains(value.trim())) {
+                    return true;
+                }
+            } catch (StaleElementReferenceException ignored) {
+            }
+        }
 
-    for (WebElement option : driver.findElements(optionsLocator)) {
-        String value = option.getAttribute("content-desc");
+        return false;
+    });
 
-        if (value != null
-                && !value.trim().isEmpty()
-                && !excludedConditions.contains(value.trim())
-                && option.isDisplayed()
-                && option.isEnabled()) {
-            validOptions.add(option);
+    // Get visible valid conditions
+    List<String> validConditions = new ArrayList<>();
+
+    for (WebElement element : driver.findElements(optionsLocator)) {
+
+        try {
+            String value = element.getAttribute("content-desc");
+
+            if (value == null) {
+                continue;
+            }
+
+            value = value.trim();
+
+            if (!value.isEmpty()
+                    && !excludedConditions.contains(value)
+                    && !value.equals("Scrim")
+                    && !value.contains("Health Condition")
+                    && element.isDisplayed()
+                    && element.isEnabled()) {
+
+                if (!validConditions.contains(value)) {
+                    validConditions.add(value);
+                }
+            }
+
+        } catch (StaleElementReferenceException ignored) {
         }
     }
 
-    if (validOptions.isEmpty()) {
+    System.out.println("Valid Health Conditions: " + validConditions);
+
+    if (validConditions.isEmpty()) {
         throw new IllegalStateException(
-            "No valid Health Condition options found in the dropdown."
+            "No valid Health Condition options found."
         );
     }
 
-    WebElement selectedOption = validOptions.get(
-        ThreadLocalRandom.current().nextInt(validOptions.size())
+    // Random actual condition
+    String selectedCondition = validConditions.get(
+        ThreadLocalRandom.current().nextInt(validConditions.size())
     );
 
-    String selectedCondition = selectedOption.getAttribute("content-desc");
+    System.out.println("Trying to select: " + selectedCondition);
+
+    // Fresh locator for selected condition
+    By selectedLocator = AppiumBy.xpath(
+        "//android.view.View[@content-desc="
+        + xpathLiteral(selectedCondition)
+        + " and @clickable='true']"
+    );
+
+    WebElement selectedOption = wait.until(
+        ExpectedConditions.elementToBeClickable(selectedLocator)
+    );
+
     selectedOption.click();
 
-    System.out.println("Health Condition selected: " + selectedCondition);
+    System.out.println(
+        "Health Condition selected: " + selectedCondition
+    );
 
+    // Apply button
     By applyButton = AppiumBy.accessibilityId("Apply");
 
     WebElement apply = wait.until(
         ExpectedConditions.elementToBeClickable(applyButton)
     );
+
     apply.click();
 
-    System.out.println("Apply button clicked successfully.");
+    System.out.println(
+        "Health Condition Apply clicked successfully."
+    );
 }
 
-	public void clickSaveSelfReportedHealth() {
+// Handles quotes safely in XPath values
+private String xpathLiteral(String value) {
 
-		By saveButton = AppiumBy.accessibilityId("Save Self-reported Health and Conditions");
+    if (!value.contains("'")) {
+        return "'" + value + "'";
+    }
 
-		WebElement button = wait.until(ExpectedConditions.elementToBeClickable(saveButton));
+    if (!value.contains("\"")) {
+        return "\"" + value + "\"";
+    }
 
-		button.click();
+    String[] parts = value.split("'", -1);
 
-		System.out.println("Save Self-reported Health and Conditions clicked successfully.");
-	}
+    StringBuilder result = new StringBuilder("concat(");
 
+    for (int i = 0; i < parts.length; i++) {
+
+        if (i > 0) {
+            result.append(", \"'\", ");
+        }
+
+        result.append("'").append(parts[i]).append("'");
+    }
+
+    result.append(")");
+
+    return result.toString();
+}
+
+
+
+    // Save Self-reported Health
+    public void clickSaveSelfReportedHealth() {
+
+        WebElement button = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                        saveButton
+                )
+        );
+
+        button.click();
+
+        System.out.println(
+                "Save Self-reported Health and Conditions clicked successfully."
+        );
+    }
 }
