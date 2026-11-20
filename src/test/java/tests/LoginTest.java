@@ -17,7 +17,7 @@ public class LoginTest extends BaseTest {
         // --------------------------------
 
         System.out.println(
-                "LOGIN + LOCATION + DASHBOARD successfully done"
+                "LOGIN + LOCATION + DASHBOARD successfully done."
         );
     }
 }
