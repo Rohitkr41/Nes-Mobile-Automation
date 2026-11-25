@@ -33,7 +33,7 @@ public class AddMemberFemaleChildTest extends BaseTest {
 
         // Existing AddMember methods
         child.enterNationalId();
-        child.enterFirstName("rekha");
+        child.enterFirstName("rupam");
         child.enterLastName("gupta");
         child.enterRandomDob();
         child.enterPrimaryMobile();
