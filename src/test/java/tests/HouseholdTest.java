@@ -51,7 +51,7 @@ public class HouseholdTest extends BaseTest {
 		// Door No
 		// --------------------------------
 
-		householdPage.enterDoorNo("d4");
+		householdPage.enterDoorNo("d7");
 
 		// --------------------------------
 		// Area
